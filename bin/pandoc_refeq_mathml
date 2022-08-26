@@ -1,0 +1,195 @@
+#!/usr/bin/env ruby
+# coding: utf-8
+
+require 'optparse'
+require 'nokogiri'
+
+require 'pandoc_refeq_mathml'
+
+# Optparse-handling Template: <https://gist.github.com/masasakano/45ee0d737f2d33122e8ff44007693b40>
+class OptparsePandocRefeqMathml
+  begin
+    ver = nil
+    gemfile = __dir__+'/../pandoc_refeq_mathml.gemspec'
+    open(gemfile){ |ioin|
+      while line=ioin.gets
+        if /^\s*[^.]+.version\s*=\s*(['"])([\d\._a-zA-Z\-]+)\1/ =~ line
+          ver = $2
+          break $2
+        end
+      end
+    }
+  rescue
+    warn "gemspec file (#{gemfile}) is not found or its format is unexpected." #if $DEBUG
+  ensure
+    # Reads Version from the gemspec file.
+    # Make sure the format of the version in the gemspec file is standard,
+    # using quotations (not like "%q@1.2.3@").
+    Version = (ver || "0.1")  # Just in case, update this hard-coded fallback version number, too!
+  end
+
+
+  # Default values for the command-line options.
+  # If nil, it means they are mandatory AS DEFINED in "def parse(args)" below,
+  # except for the 2 arguments of "inplace" and "extension".
+  # The Hash keyword (and attribute) names should be identical to the command-line
+  # option names, except "inplace" and "extension" in this case as demonstrated
+  # (in *parse()* etc).
+  DEF_OPTS = {
+    aux: nil,    # mandatory LaTeX aux filename
+    auxstr: "",  # Contents (String) of the LaTeX aux (extracted from --aux option)
+    fixalign: true, # Fix eqnarray-originating alignment issues, if true
+    #fixref: true, # Fix equation-labels and refs (Def: true); this option is not implemented.
+    log: "",     # Log filename, where warning messages are recorded. Default is "", meaning STDERR
+    verbose: true,
+  }
+
+  class ScriptOptions
+
+    # attr_accessor :aux, :auxstr, :verbose
+    DEF_OPTS.each_key do |ek|
+      attr_accessor ek
+    end
+
+    def initialize
+      DEF_OPTS.each_pair do |ek, ev|
+        self.public_send(ek.to_s+"=", ev)
+      end
+    end
+
+    def define_options(parser)
+      parser.banner = "Usage: pandoc_refeq_mathml [options] [--] [MathML.html] > STDOUT"
+      parser.separator "       pandoc_refeq_mathml [options] [--] < STDIN > STDOUT"
+
+      descriptions = []
+      descriptions.push <<EOF
+   This fixes issues, label-references of equations and eqnarray alignments, of pandoc-converted MathML from LaTeX.
+EOF
+
+      parser.separator ""
+      parser.separator "Description (Version=#{Version}):"
+      descriptions.each do |et|
+        parser.separator et.gsub(/\s*\n\*/, " ")
+        parser.separator ""
+      end
+      parser.separator "Specific options:"
+
+      # add additional options
+      read_aux_option(parser)  # mandatory
+      read_log_option(parser)  # mandatory
+      fixalign_option(parser)
+      boolean_verbose_option(parser)
+
+      parser.separator ""
+      parser.separator "Common options:"
+      # No argument, shows at tail.  This will print an options summary.
+      parser.on_tail("-h", "--help", "Show this message") do
+        puts parser
+        exit
+      end
+      # Another typical switch to print the version.
+      parser.on_tail("--version", "Show version") do
+        puts Version
+        exit
+      end
+    end
+
+    # Specifies a LaTeX aux filename
+    def read_aux_option(parser)  # mandatory option
+      parser.on("-a", "--aux [FILENAME]",  # Do not change this into "--aux FILENAME".
+                "(mandatory) LaTeX aux filename") do |fname|
+        raise OptionParser::MissingArgument if !fname  # This is necessary as fname is mandatory!
+        self.aux = fname
+        self.auxstr = File.read fname  # may raise an Exception!
+      end
+    end
+
+    # Specifies a log file
+    #
+    # if self.log.empty? is true, it should be treated as STDERR later. 
+    def read_log_option(parser)
+      parser.on("--log [FILENAME]",  # Do not change this into "--aux FILENAME".
+                "Log filename (Default: STDERR). /dev/null to disable it.") do |fname|
+        raise OptionParser::MissingArgument if !fname  # This is necessary as fname is mandatory!
+        self.log = ((fname == "STDERR") ? "" : fname)
+      end
+    end
+
+    # Fix alignment-problems? (Boolean)
+    def fixalign_option(parser)
+      parser.on("--[no-]fixalign", "Fix eqnarray-alignment problems? (Def: #{self.fixalign.inspect})") do |v|
+        self.fixalign = v
+      end
+    end
+
+    # Boolean switch.
+    def boolean_verbose_option(parser)
+      parser.on("-v", "--[no-]verbose", "Run verbosely (Def: #{self.verbose.inspect})") do |v|
+        self.verbose = v
+      end
+    end
+  end  # class ScriptOptions
+
+  #
+  # Return a structure describing the options.
+  #
+  def parse(args)
+    # The options specified on the command line will be collected in
+    # *options*.
+    #
+    # NOTE: if undefined options are specified, OptionParser::InvalidOption is raised.
+
+    @options = ScriptOptions.new
+    @args = OptionParser.new do |parser|
+      @options.define_options(parser)
+      begin
+        parser.parse!(args)
+
+        # Error if mandatory options are not specified.
+        DEF_OPTS.keys.each do |ek|  # 2 arguments are exceptions
+          if @options.public_send(ek).nil?  # *.nil? is used b/c "false" must be accepted.
+            # Assuming the Hash keyword (and attribute) name is identical to the option name!
+            warn "ERROR: Keyword argument --#{ek.to_s} is mandatory."
+            exit 1
+          end
+        end
+
+      rescue OptionParser::MissingArgument => err
+        # Missing argument for optional arguments.
+        warn sprintf "ERROR: %s: %s", err.reason, err.args.join(" ")
+        exit 1
+
+      rescue OptionParser::ParseError => err
+        # Other types of argument-handling errors
+        raise
+      end
+    end
+    @options
+  end
+
+  attr_reader :parser, :options
+end  # class OptparsePandocRefeqMathml
+
+####################################
+# MAIN
+####################################
+
+if $0 == __FILE__
+  cmdarg = OptparsePandocRefeqMathml.new
+  cmdopts = cmdarg.parse(ARGV)  # Optional command-line options, apart from ARGV
+    # cmdopts.auxstr : String of *.aux
+
+  logio = (cmdopts.log.empty? ? $stderr : open(cmdopts.log, "w"))
+  logio.sync = true
+
+  begin
+    apmre = PandocRefeqMathml.new( Nokogiri::HTML(ARGF.read), cmdopts.auxstr, logio: logio, is_verbose: cmdopts.verbose)
+    apmre.alter_html!(fixalign: cmdopts.fixalign)
+
+    # outputs the alterned HTML to STDOUT
+    puts apmre.page.to_s
+  ensure
+    logio.close if logio != $stderr 
+  end
+end
+

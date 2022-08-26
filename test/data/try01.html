@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>My Title</title>
+  <style>
+    html {line-height: 1.5;}
+    body {margin: 0 auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">My Title</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#はじめに" id="toc-はじめに"><span
+class="toc-section-number">1</span> はじめに</a></li>
+</ul>
+</nav>
+<section id="sec_symmetry_mul" class="level3" data-number="4.6">
+<h3 data-number="4.6"><span class="header-section-number">4.6</span>
+対称的な数</h3>
+<p>以下が使える。
+</p>
+</section>
+<section id="2乗と3乗" class="level3"
+data-number="4.8">
+<h3 data-number="4.8"><span class="header-section-number">4.8</span>
+2乗と3乗</h3>
+<p>つまり、計算は単純化される。</p> <!-- COMMENT: below has a label that is referenced in LaTeX. -->
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>±</mo><mi>ϵ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup><mo>=</mo><msup><mi>x</mi><mn>2</mn></msup><mo>±</mo><mn>2</mn><mi>x</mi><mi>ϵ</mi><mo>+</mo><msup><mi>ϵ</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">(x \pm \epsilon)^2 = x^2 \pm 2x\epsilon + \epsilon^2 \label{square_pm}</annotation></semantics></math>
+</p>
+<p>同様に、</p> <!-- COMMENT: below has a label but not referenced in LaTeX. -->
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>±</mo><mi>ϵ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mn>3</mn></msup><mo>=</mo><msup><mi>x</mi><mn>3</mn></msup><mo>±</mo><mn>3</mn><msup><mi>x</mi><mn>2</mn></msup><mi>ϵ</mi><mo>+</mo><mn>3</mn><mi>x</mi><msup><mi>ϵ</mi><mn>2</mn></msup><mo>±</mo><msup><mi>ϵ</mi><mn>3</mn></msup></mrow><annotation encoding="application/x-tex">(x \pm \epsilon)^3 = x^3 \pm 3x^2\epsilon + 3x\epsilon^2 \pm \epsilon^3 \label{cubic_pm}</annotation></semantics></math></p>
+<p>以下が公式(<a href="#sec_symmetry_mul"
+data-reference-type="ref"
+data-reference="sec_symmetry_mul">4.6</a>章)の応用例。</p> <!-- COMMENT: Below is begin{eqnarray} with no label -->
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right"><mn>84</mn><mo>×</mo><mn>86</mn></mtd><mtd columnalign="left"><mo>=</mo></mtd><mtd columnalign="right"><mrow><mo stretchy="true" form="prefix">(</mo><mn>85</mn><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>85</mn><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right"></mtd><mtd columnalign="left"><mo>=</mo></mtd><mtd columnalign="right"><mn>7224</mn></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{aligned}
+  84\times 86 &amp; = &amp; (85+1)(85-1) \\
+              &amp; = &amp; 7224
+\end{aligned}</annotation></semantics></math></p>
+<p>ここで、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>85</mn><mn>2</mn></msup><annotation encoding="application/x-tex">85^2</annotation></semantics></math>は項(式(<a
+href="#square_pm" data-reference-type="ref"
+data-reference="square_pm">[square_pm]</a>)の<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>x</mi><mi>ϵ</mi></mrow><annotation encoding="application/x-tex">2x\epsilon</annotation></semantics></math>)。</p>
+</section>
+
+<section id="割り算" class="level4"
+data-number="4.9.1">
+<h4 data-number="4.9.1"><span class="header-section-number">4.9.1</span>
+割り算</h4>
+<p>これは、</p> <!-- COMMENT: below has labels (referenced) and \nonumber-s. -->
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right"><mfrac><mrow><mn>1</mn><mo>+</mo><mi>x</mi></mrow><mrow><mn>1</mn><mo>−</mo><mi>x</mi></mrow></mfrac></mtd><mtd columnalign="left"><mo>=</mo></mtd><mtd columnalign="right"><mfrac><mrow><mn>2</mn><mo>−</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><mn>1</mn><mo>−</mo><mi>x</mi></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right"></mtd><mtd columnalign="left"><mo>=</mo></mtd><mtd columnalign="right"><mfrac><mn>2</mn><mrow><mn>1</mn><mo>−</mo><mi>x</mi></mrow></mfrac><mo>−</mo><mn>1</mn></mtd></mtr><mtr><mtd columnalign="right"></mtd><mtd columnalign="left"><mo>=</mo></mtd><mtd columnalign="right"><mn>1</mn><mo>+</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>2</mn><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn><msup><mi>x</mi><mn>3</mn></msup><mo>+</mo><mi>⋯</mi></mtd></mtr><mtr><mtd columnalign="right"></mtd><mtd columnalign="left"><mo>∼</mo></mtd><mtd columnalign="right"><mfrac><mn>1</mn><mrow><mn>1</mn><mo>−</mo><mn>2</mn><mi>x</mi></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right"></mtd><mtd columnalign="left"><mo>=</mo></mtd><mtd columnalign="right"><mn>1</mn><mo>+</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>4</mn><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>8</mn><msup><mi>x</mi><mn>3</mn></msup><mo>+</mo><mi>⋯</mi></mtd></mtr><mtr><mtd columnalign="right"></mtd><mtd columnalign="left"><mo>∼</mo></mtd><mtd columnalign="right"><mn>1</mn><mo>+</mo><mn>2</mn><mi>x</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{aligned}
+  \frac{1+x}{1-x} &amp; = &amp; \frac{2-(1-x)}{1-x} \nonumber\\
+                &amp; = &amp; \frac{2}{1-x} - 1\nonumber\\
+                &amp; = &amp; 1 + 2x + 2x^2 + 2x^3 + \cdots \label{eq_approx_symmetric_frac_strict}\\
+                &amp; \sim &amp; \frac{1}{1-2x} \label{eq_approx_symmetric_frac2}\\
+                &amp; = &amp; 1 + 2x + 4x^2 + 8x^3 + \cdots  \label{eq_approx_symmetric_frac2_series}\\
+                &amp; \sim &amp; 1 + 2x \label{eq_approx_symmetric_frac_1order}
+\end{aligned}</annotation></semantics></math></p>
+<p>近似(<a href="#eq_approx_symmetric_frac2" data-reference-type="ref"
+data-reference="eq_approx_symmetric_frac2">[eq_approx_symmetric_frac2]</a>)は、、
+(参考: 式(<a href="#eq_approx_symmetric_frac_1order"
+data-reference-type="ref"
+data-reference="eq_approx_symmetric_frac_1order">[eq_approx_symmetric_frac_1order]</a>))だ。したがって、
+(式(<a href="#eq_approx_symmetric_frac2" data-reference-type="ref"
+data-reference="eq_approx_symmetric_frac2">[eq_approx_symmetric_frac2]</a>))の場合は、近似
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn></mrow><annotation encoding="application/x-tex">1</annotation></semantics></math>
+(式<a href="#eq_approx_symmetric_frac_1order" data-reference-type="ref"
+data-reference="eq_approx_symmetric_frac_1order">[eq_approx_symmetric_frac_1order]</a>)の計算。</p>
+<p>一例として、 <!-- COMMENT: Below is begin{equation} with no label -->
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>26</mn><mo>÷</mo><mn>24</mn></mrow><annotation encoding="application/x-tex">26\div24</annotation></semantics></math>
+を展開(式(<a href="#eq_approx_symmetric_frac_strict"
+data-reference-type="ref"
+data-reference="eq_approx_symmetric_frac_strict">[eq_approx_symmetric_frac_strict]</a>))と、式(<a
+href="#square_pm" data-reference-type="ref"
+data-reference="square_pm">[square_pm]</a>)で計算。</p>
+<div id="tbl_25pm1_taylor">
+<table> <!-- COMMENT: Caption below contains math -->
+<caption><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>25</mn></mrow><annotation encoding="application/x-tex">25</annotation></semantics></math>の計算</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Equation</th>
+<th style="text-align: left;">Num</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd"> <!-- COMMENT: td below contains a ref to an Equation -->
+<td style="text-align: center;">(<a
+href="#eq_approx_symmetric_frac_strict" data-reference-type="ref"
+data-reference="eq_approx_symmetric_frac_strict">[eq_approx_symmetric_frac_strict]</a>)</td>
+<td style="text-align: left;">1.08
+</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">(<a
+href="#eq_approx_symmetric_frac2_series" data-reference-type="ref"
+data-reference="eq_approx_symmetric_frac2_series">[eq_approx_symmetric_frac2_series]</a>)</td>
+<td style="text-align: left;">2.08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</body>
+</html>
+
