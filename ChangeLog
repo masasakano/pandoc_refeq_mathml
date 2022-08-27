@@ -1,4 +1,11 @@
 -----
+(Version: v0.2)
+2022-08-27  Masa Sakano
+  * Now handles comment lines in equations and multi-layer mtables.
+  
+  * Added a compilable LaTeX file () in test/data/ with 
+
+-----
 (Version: 1.0)
 2022-08-26  Masa Sakano
 

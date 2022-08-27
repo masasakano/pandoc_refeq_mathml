@@ -18,8 +18,7 @@ Another caveat is the alignments of equations in the `eqnarray` environment.
 
 This tool is a bit of ad hoc (dirty) hack to correct these points *in some
 basic situations*.  "Basic" here means just the standard LaTeX commands, not
-some package-specific commands. Also, this may not correctly handle
-complicated formats of equations, using arrays etc.
+some external package-specific commands.
 
 The full package of this module is found in [PandocRefeqMathml Ruby Gems page](http://rubygems.org/gems/pandoc_refeq_mathml) (with document created
 from source annotation with yard) and in
@@ -28,15 +27,35 @@ from source annotation with yard) and in
 ## Background and constraints
 
 Pandoc-converted MathML.html from LaTeX lacks equation numbers that are
-present in the original LaTeX.  This tool offers a very crude fix, adding
-equation numbers based on the annotation fields in `<math>` and LaTeX aux file
-(which is automatically generated as a byproduct when you compile a LaTeX
-document).  Not all the numbers are recovered but only those that are
-referenced somewhere in the MathML/LaTeX file.
+present in the original LaTeX.  The
+[pandoc-crossref](https://github.com/lierdakil/pandoc-crossref) offers a way
+to tackle the problem; however its fix is far from perfect with three or four
+major caveats.
+
+1.  A single number is assigned to the whole set of equations in an `eqnarray`
+    environment, which is inconsistent with LaTeX.
+2.  The LaTeX `\nonumber` is not taken into account.
+3.  Referencing text to an equation displays the original LaTeX label, as
+    opposed to the equation number, which makes no sense to readers.
+4.  Because of points (1) and (2), the given equation numbers usually do not
+    agree at all with the original document compiled by LaTeX.
+
+
+In LaTeX, you may reference equation 1 and 3 in a single `eqnarray`
+environment separately. However, because of point (1), it would not be
+possible in pandoc-generated MathML.  Besides, since they are not referenced
+with equation numbers in the MathML (point 3) in the first place.
+
+This tool (command-line command) offers a way to fix these problems, albeit in
+a crude way. The command adds equation numbers that are guessed from the text
+in the annotation fields in `<math>` and LaTeX aux file (the latter of which
+is automatically generated as a byproduct when you compile a LaTeX document). 
+Not all the numbers are recovered but only those that are referenced somewhere
+in the MathML file.
 
 (Note that in principle, it should not be too difficult to modify the program
 so that all the labelled equations in LaTeX are labelled again in MathML. 
-However, it would be tricky to label equations that are not explicitly
+Nevertheless, it would be tricky to label equations that are not explicitly
 labelled in LaTeX because implicit numbering information is not available in
 the LaTeX aux file.)
 
@@ -131,7 +150,7 @@ LaTeX `eqnarray{}`) and is not like the original LaTeX, where equation numbers
 inside a pair of parentheses are always located at the right edge of a page in
 default.
 
-## How to use this command
+## How to use the command
 
 Once you have installed it according to the standard RubyGems procedure (see
 section Install), the main Ruby executable (command) `pandoc_refeq_mathml`
@@ -181,6 +200,11 @@ Common options:
 % pandoc_refeq_mathml --aux=mydoc.aux --log=error.log mydoc.html > revised1.html
 % head -n 90 mydoc.html | pandoc_refeq_mathml --aux=mydoc.aux --no-fixalign > revised2.html
 ```
+
+Also, in the `test/data/` directory, there is a sample LaTeX file. You can run
+`make` in the directory to generate and correct a HTML/MathML file.  Read the
+comment in the `Makefile` to see options, such as the LaTeX executable in your
+environment.
 
 ## Install
 

@@ -36,6 +36,7 @@
 *.elc
 *.pyc
 \#*\#
+.\#*
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

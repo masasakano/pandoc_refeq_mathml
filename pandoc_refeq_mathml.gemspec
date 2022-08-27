@@ -5,15 +5,15 @@ require 'date'
 
 Gem::Specification.new do |s|
   s.name = 'pandoc_refeq_mathml'.sub(/.*/){|c| (c == File.basename(Dir.pwd)) ? c : raise("ERROR: s.name=(#{c}) in gemspec seems wrong!")}
-  s.version = "0.1".sub(/.*/){|c| fs = Dir.glob('changelog{,.*}', File::FNM_CASEFOLD); raise('More than one ChangeLog exist!') if fs.size > 1; warn("WARNING: Version(s.version=#{c}) already exists in #{fs[0]} - ok?") if fs.size == 1 && !IO.readlines(fs[0]).grep(/^\(Version: #{Regexp.quote c}\)$/).empty? ; c }  # n.b., In macOS, changelog and ChangeLog are identical in default.
+  s.version = "0.2".sub(/.*/){|c| fs = Dir.glob('changelog{,.*}', File::FNM_CASEFOLD); raise('More than one ChangeLog exist!') if fs.size > 1; warn("WARNING: Version(s.version=#{c}) already exists in #{fs[0]} - ok?") if fs.size == 1 && !IO.readlines(fs[0]).grep(/^\(Version: #{Regexp.quote c}\)$/).empty? ; c }  # n.b., In macOS, changelog and ChangeLog are identical in default.
   # s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  # s.bindir = 'bin'
-  # %w(slim_string).each do |f|
-  #   path = s.bindir+'/'+f
-  #   File.executable?(path) ? s.executables << f : raise("ERROR: Executable (#{path}) is not executable!")
-  # end
+  s.bindir = 'bin'
+  %w(pandoc_refeq_mathml).each do |f|
+    path = s.bindir+'/'+f
+    File.executable?(path) ? s.executables << f : raise("ERROR: Executable (#{path}) is not executable!")
+  end
   s.authors = ["Masa Sakano"]
-  s.date = %q{2022-08-26}.sub(/.*/){|c| (Date.parse(c) == Date.today) ? c : raise("ERROR: s.date=(#{c}) is not today!")}
+  s.date = %q{2022-08-27}.sub(/.*/){|c| (Date.parse(c) == Date.today) ? c : raise("ERROR: s.date=(#{c}) is not today!")}
   s.summary = %q{Add equation numbers to a pandoc-output MathML converted from LaTeX}
   s.description = <<-EOF
 Add equation numbers in a crude way to a pandoc-output MathML converted from LaTeX, utilising its LaTeX aux file, and also adjust math-table alignments.
@@ -24,7 +24,7 @@ Add equation numbers in a crude way to a pandoc-output MathML converted from LaT
      "README.en.rdoc",
   ]
   s.license = 'MIT'
-  s.files = FileList['.gitignore','lib/**/*.rb','[A-Z]*','test/**/*.rb', '*.gemspec', 'bin/pandoc_refeq_mathml'].to_a.delete_if{ |f|
+  s.files = FileList['.gitignore', '**/.gitignore', '*.gemspec', '[A-Z]*', '**/[A-Z]*', 'lib/**/*.rb', 'test/**/*.rb', 'test/data/*.lua', 'test/data/try01.html', 'test/data/try01_latex.aux', 'test/data/try01_tmpl.tex', 'bin/pandoc_refeq_mathml'].to_a.delete_if{ |f|
     ret = false
     arignore = IO.readlines('.gitignore')
     arignore.map{|i| i.chomp}.each do |suffix|
@@ -34,7 +34,7 @@ Add equation numbers in a crude way to a pandoc-output MathML converted from LaT
       end
     end
     ret
-  }
+  }.uniq
   s.files.reject! { |fn| File.symlink? fn }
 
   s.add_runtime_dependency 'nokogiri', '>= 1.13'

@@ -1,0 +1,17 @@
+-- from https://stackoverflow.com/a/73418616/3577922
+function Pandoc (doc)
+  -- Create and number sections. Setting the first parameter to
+  -- `true` ensures that headings are numbered.
+  doc.blocks = pandoc.utils.make_sections(true, nil, doc.blocks)
+
+  -- Shift the heading levels by 1
+  doc.blocks = doc.blocks:walk {
+    Header = function (h)
+      h.level = h.level + 1
+      return h
+    end
+  }
+
+  -- Return the modified document
+  return doc
+end

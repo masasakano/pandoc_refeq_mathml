@@ -69,6 +69,10 @@ class TestUnitPandocRefeqMathml < MiniTest::Test
     @auxfile  = __dir__ + "/data/try01_latex.aux"
     @htmlfile = __dir__ + "/data/try01.html"
 
+    # For integration tests, the lib directory should be at the top in RUBYLIB.
+    # Use it like:  "RUBYLIB=#{@rubylib4exe} #{@exefile}"
+    @rubylib4exe = sprintf "%s/../lib:%s", __dir__, ENV['RUBYLIB']
+
     # Array of IOs for temporary files (automatically set in generate_tmpfile())
     @tmpfiles = []
   end
@@ -93,7 +97,7 @@ class TestUnitPandocRefeqMathml < MiniTest::Test
     htmlstr = File.read @htmlfile
     page00 = Nokogiri::HTML(htmlstr)
     page   = Nokogiri::HTML(htmlstr)
-    io_tmp, path_tmp = generate_tmpfile(__method__)
+    io_tmp, _ = generate_tmpfile(__method__)
 
     prm = PandocRefeqMathml.new page, auxstr, logio: io_tmp, is_verbose: true
     prm.alter_html!
@@ -104,55 +108,58 @@ class TestUnitPandocRefeqMathml < MiniTest::Test
     lcs = math1_org.to_s.diff(math1_rev.to_s)
     assert_equal 1, lcs.size, 'Diff-size should be 1 (one continuous addition only)'
     assert_operator 90, '<', lcs[0].size, 'Number of different characters should be larger than 90'
-    assert_operator 99, '>', lcs[0].size, 'Number of different characters should be smaller than 99: Diff='+mk_str_diff_chg(lcs).inspect  # "mrow><mtext id=\"square_pm\" style=\"padding-left:1em; text-align:right;\">(36)</mtext></mrow><"
+    assert_operator 99, '>', lcs[0].size, 'Number of different characters should be smaller than 99: Diff='+join_diff_chg(lcs).inspect  # "mrow><mtext id=\"square_pm\" style=\"padding-left:1em; text-align:right;\">(36)</mtext></mrow><"
     assert((%r@</mtext>@ !~ math1_org.to_s), '</mtext> should not be included')
     assert_match(%r@</mtext></mrow></mrow>@, math1_rev.to_s, '</mtext></mrow></mrow> should be included')
+    assert_match(%r@#{Regexp.quote "(55)</mtext></mtd>"}@, prm.page.to_s, 'Equation number (55) should be correctly placed despite LaTeX comment lines')  # in data/try01_latex.aux: {eq_approx_symmetric_frac_1order}{{55}{39}{割り算}{equation.4.52}{}}
+    assert_equal "55", prm.page.css('a[href="#eq_approx_symmetric_frac_1order"]')[0].text, "Eq.55 should be correctly referencing"
 
     mtds = prm.page.css("math mtable mtr")[2].css("mtd")
     assert_equal "right",  mtds[0]["columnalign"]
     assert_equal "center", mtds[1]["columnalign"], "align should be center: "+mtds[1]
     assert_equal "left",   mtds[2]["columnalign"]
-    # NOTE: --no-fixalign is tested in test_integrated()
+    # NOTE: --no-fixalign is tested in test_integration()
 
     io_tmp.rewind
     msg_log = io_tmp.read
     assert_match(%r@label=.?sec_@, msg_log, "Warning message should be present in the log file because Equation-ID is not found for a label for a Section: \n> "+msg_log)
   end
 
-  # Integrated tests
-  def test_integrated
-    #com = sprintf "%s --aux=%s --log=%s ", @exefile, @auxfile, @logfilename
-    com = sprintf "%s --aux=%s --no-fixalign", @exefile, @auxfile  # Logfile => STDERR, fixalign=no
+  # Integration tests
+  #
+  # RUBYLIB=./lib:$RUBYLIB bin/pandoc_refeq_mathml --aux test/data/try01_latex.aux test/data/try01.html > STDOUT/STDERR
+  def test_integration
+    com = sprintf "RUBYLIB=%s %s --aux=%s --no-fixalign", @rubylib4exe, @exefile, @auxfile  # Logfile => STDERR, fixalign=no
 
     ## From STDIN, out to STDOUT, log-file to STDERR
     out, err, stat = Open3.capture3(com, stdin_data: File.read(@htmlfile))
-    assert_equal 0, stat
+    assert_equal 0, stat, "Execution fails (stat=#{stat}): com=(#{@exefile}). STDERR="+err
     assert_match(%r@label=.?sec_@, err, "Warning message should be present in STDERR because Equation-ID is not found for a label for a Section: \n> "+err)
-    assert_operator 5, '<=', out.scan(%r@(?=</mtext>)@).count, 'There should be many </mtext>. out[0..100]='+out[0..100]
+    assert_operator 5, '<=', out.scan(%r@(?=</mtext>)@).count, 'There should be many </mtext>. out[0..100]='+out#[0..100]
     assert_match(%r@\bcolumnalign="right"@,  out, 'Sanity check columnalign')
     refute_match(%r@\bcolumnalign="center"@, out, 'With --no-fixalign center columnalign should not exist, but..')
   end
 
   # Read a 2-dim Array of Diff::LCS::Change and convert it to a single Array of them
   #
-  # Each Diff may (or usually) have more than 1 character.
+  # Each array-element Diff may (or usually) have more than 1 character.
   # And therefore, it should be far more readable for humans.
   # Here is an example.
   #
-  #   # [#<Diff::LCS::Change: ["+", 1, "x"]>, #<Diff::LCS::Change: ["+", 2, "y"]>]
-  #   # => <Diff::LCS::Change: ["+", 1, "xy"]>
+  #   # [[<Diff::LCS::Change: ["+", 1, "x"]>, <Diff::LCS::Change: ["+", 2, "y"]>], [<Diff::LCS::Change: ["-", 2, "y"]>]]
+  #   # => [<Diff::LCS::Change: ["+", 1, "xy"]>, <Diff::LCS::Change: ["-", 2, "y"]>]
   #
   # You can still patch it.
   #
-  #   s2 == s1.patch( [mk_str_diff_chg(Diff::LCS.diff(s1, s2))] )
+  #   s2 == s1.patch( [join_diff_chg(Diff::LCS.diff(s1, s2))] )
   #
-  # However, +s2.unpatch [mk_str_diff_chg(...)]+ raises RuntimeError.
+  # However, +s2.unpatch [join_diff_chg(...)]+ raises RuntimeError.
   # I think it works by starting from the beginning, swapping "`+`" and "`-`",
   # where interpreting "`-`"+0 as inserting before pos=0 and "`+`"+1 as deleting after pos=1.
   #
   # @param arlcs [Array<Array<<Diff::LCS::Change>>]
   # @return [Array<Diff::LCS::Change>]
-  def mk_str_diff_chg(ar2lcs)
+  def join_diff_chg(ar2lcs)
     arlcs = []  # ar2lcs.flatten actually also flattens the contents of Diff::LCS::Change !
                 # Therefore, this is a custom Array#flatten
     ar2lcs.each do |ea1|
